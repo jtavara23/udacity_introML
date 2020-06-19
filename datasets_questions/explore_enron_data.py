@@ -14,9 +14,23 @@
     enron_data["SKILLING JEFFREY K"]["bonus"] = 5600000
     
 """
-
+import streamlit as st
 import pickle
+import pandas as pd
 
-enron_data = pickle.load(open("../final_project/final_project_dataset.pkl", "rb"))
+enron_data = pickle.load(open("../final_project/final_project_dataset_unix.pkl", "rb"))
 
+st.title("Enron Data")
+df = pd.DataFrame(enron_data)
+st.write("Original size:", df.shape)
+st.title("Transposing")
+dft = df.transpose()
+st.dataframe(dft)
 
+dft.index
+dft.columns
+
+st.write("number of POI", dft[dft['poi'] == 1].shape)
+
+dft[( dft["total_payments"] == "NaN") & (dft["poi"] == 1) ].shape
+dft[dft["poi"] == 1].shape
