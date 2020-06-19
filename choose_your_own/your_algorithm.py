@@ -17,6 +17,7 @@ bumpy_slow = [features_train[ii][1] for ii in range(0, len(features_train)) if l
 
 
 #### initial visualization
+"""
 plt.xlim(0.0, 1.0)
 plt.ylim(0.0, 1.0)
 plt.scatter(bumpy_fast, grade_fast, color = "b", label="fast")
@@ -25,6 +26,7 @@ plt.legend()
 plt.xlabel("bumpiness")
 plt.ylabel("grade")
 plt.show()
+"""
 ################################################################################
 
 
@@ -32,11 +34,35 @@ plt.show()
 ### visualization code (prettyPicture) to show you the decision boundary
 
 
+from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+
+est = [50,100,150]
+neig = [1,2,3]
+
+for x in range(0,len(est)):
+	clf = AdaBoostClassifier(n_estimators=est[x],learning_rate=0.1)
+
+	clf.fit(features_train,labels_train)
+	scr = clf.score(features_test, labels_test)
+
+	print("Ada:", scr)
+
+	clf = RandomForestClassifier(n_estimators=est[x], max_depth=est[x])
+
+	clf.fit(features_train,labels_train)
+	scr = clf.score(features_test, labels_test)
+
+	print("RandomForest: ",scr)
 
 
+	clf = KNeighborsClassifier(n_neighbors=neig[x])
 
+	clf.fit(features_train, labels_train)
+	scr = clf.score(features_test, labels_test)
 
-
+	print("KNeighbors : ",scr)
+	print("----------")
 
 try:
     prettyPicture(clf, features_test, labels_test)
