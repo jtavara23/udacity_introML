@@ -24,7 +24,21 @@ features_train, features_test, labels_train, labels_test = preprocess()
 
 #########################################################
 ### your code goes here ###
+from sklearn.svm import SVC
 
+
+#features_train = features_train[:int(len(features_train)/100)]
+#labels_train = labels_train[:int(len(labels_train)/100)]
+
+classif = SVC(C=10000,kernel='rbf')
+t0 = time()
+classif.fit(features_train, labels_train)
+print("training time: ", round(time()-t0, 3), "s")
+
+#pred = classif.score(features_test,labels_test)
+#print(f"accuracy: {pred}")
 #########################################################
 
-
+#res = classif.predict([features_test[10],features_test[26], features_test[50]])
+res = classif.predict(features_test).tolist().count(1)
+print(f"resulots: {res}, total{len(features_test)}")
