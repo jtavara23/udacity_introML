@@ -11,3 +11,4 @@ my_feature_list.pkl
 *.bz2
 .idea/
 venv/
+*.pdf
