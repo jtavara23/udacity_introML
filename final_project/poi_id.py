@@ -2,6 +2,8 @@
 
 import sys
 import pickle
+import streamlit as st
+
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
@@ -13,9 +15,13 @@ from tester import dump_classifier_and_data
 features_list = ['poi','salary'] # You will need to use more features
 
 ### Load the dictionary containing the dataset
-with open("final_project_dataset.pkl", "r") as data_file:
+with open("final_project_dataset_unix.pkl", "rb") as data_file:
     data_dict = pickle.load(data_file)
 
+
+#st.write(data_dict.keys())# 'METTS MARK', 'BAXTER JOHN C', ....
+#st.write(len(data_dict.keys())) #146
+#--------------------------------------------------
 ### Task 2: Remove outliers
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
@@ -43,7 +49,7 @@ clf = GaussianNB()
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
 # Example starting point. Try investigating other evaluation techniques!
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
@@ -52,4 +58,5 @@ features_train, features_test, labels_train, labels_test = \
 ### that the version of poi_id.py that you submit can be run on its own and
 ### generates the necessary .pkl files for validating your results.
 
-dump_classifier_and_data(clf, my_dataset, features_list)
+#dump_classifier_and_data(clf, my_dataset, features_list)
+print("Finishing dumping files.")
