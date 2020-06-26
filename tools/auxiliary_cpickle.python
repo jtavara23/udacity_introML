@@ -3,8 +3,8 @@
 convert dos linefeeds (crlf) to unix (lf)
 usage: dos2unix.py
 """
-original = "../outliers/practice_outliers_net_worths.pkl"
-destination = "../outliers/practice_outliers_net_worths_unix.pkl"
+original = "../final_project/final_project_dataset.pkl"
+destination = "../final_project/final_project_dataset_unix.pkl"
 content = ''
 outsize = 0
 with open(original, 'rb') as infile:
