@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
-from tester import dump_classifier_and_data
+from tester import dump_classifier_and_data, test_classifier
 
 st.markdown("# Data Wrangling")
 """
@@ -264,7 +264,8 @@ Some feature values have a large range of values.
  - StandardScaler adjust by removing the mean and scaling to unit variance.
 """
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-SCALER = [None, StandardScaler(), MinMaxScaler()]
+SCALER_1 = [None, StandardScaler()]
+SCALER_2 = [None, MinMaxScaler()]
 
 # #(df - df.min()) / (df.max() - df.min())
 # scaler = MinMaxScaler()
@@ -285,15 +286,16 @@ How many features?
  - SelectPercentile
  - SelectKBest
 """
-SELECTOR_K = [10, 13, 15, 18, 'all']
+from sklearn.feature_selection import SelectKBest, SelectPercentile
+SELECTOR_K = [8, 9, 10, 11, 12, 'all']
 #----------------------------------------------------------------------------------------------------------
 """
 ### 3.5 Feature Transformer
 PCA - a linear dimensionality reduction technique that can be utilized for extracting information 
 from a high-dimensional space by projecting it into a lower-dimensional sub-space
 """
-
-REDUCER_N_COMPONENTS = [2, 4, 6, 8, 10]
+from sklearn.decomposition import PCA
+REDUCER_N_COMPONENTS = [2, 4, 6, 8]
 
 
 
@@ -319,20 +321,13 @@ y_labels = np.array(labels)
 ### Note that if you want to do PCA or other multi-stage operations,
 ### you'll need to use Pipelines. For more info: http://scikit-learn.org/stable/modules/pipeline.html
 
-# Provided to give you a starting point. Try a variety of classifiers.
-from sklearn.naive_bayes import GaussianNB
-clf = GaussianNB()
-
-### Cross-validation
+from sklearn.model_selection import StratifiedShuffleSplit
+# Cross-validation
 sss = StratifiedShuffleSplit(n_splits=10, test_size=0.2, random_state=42)
 
-
-
-
-
-
-
-
+#Try a variety of classifiers.
+from classifiers import evaluate_model, classifier_gaussian_nb
+"""Gaussian Naive Bayes"""
 
 
 #----------------------------------------------------------------------------------------------------------
@@ -353,5 +348,13 @@ features_train, features_test, labels_train, labels_test = \
 ### that the version of poi_id.py that you submit can be run on its own and
 ### generates the necessary .pkl files for validating your results.
 
-#dump_classifier_and_data(clf, my_dataset, features_list)
-#st.write("Finishing dumping files.")
+dump_classifier_and_data(clf, my_dataset, features_list)
+st.write("Finishing dumping files.")
+
+
+"""
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+
+
+"""
