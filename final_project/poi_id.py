@@ -4,6 +4,7 @@ import sys
 import pickle
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 sys.path.append("../tools/")
 
@@ -48,9 +49,11 @@ st.write(df_poi)
 
 #--------------------------------------------------------------------------------------------
 """
- ## Task 2: Remove outliers
+ ## Task 2: Remove missing data and outliers
 """
-st.markdown("### Identify and handle missing values")
+#--------------------------------------------------------------------------------------------
+
+"""### Identify and handle missing values")"""
 
 import numpy as np
 df_poi.replace("NaN",np.nan, inplace = True) # to replace everything
@@ -73,8 +76,6 @@ for column in df_isnull.columns.values.tolist():
 #--------------------------------------------------------------------------------------------
 
 ### Plot missing data
-import matplotlib.pyplot as plt
-
 df_missing_data = pd.DataFrame.from_records(missing_data, columns=["feature", "nan", "percentage"])
 df_missing_data.set_index("feature", inplace=True)
 
@@ -84,10 +85,10 @@ plt.xlabel("Number of missing values")
 n_values = df_missing_data['nan']
 """we have 6 features which more than half of its values are missing."""
 
-possible_outliers = []
+possible_non_important_features = []
 for ind, perc in enumerate(df_missing_data['percentage']):
     if perc > 50:
-        possible_outliers.append((missing_data[ind][0] , perc))
+        possible_non_important_features.append((missing_data[ind][0] , perc))
         color = 'r'
     else:
         color = 'b'
@@ -100,7 +101,45 @@ for ind, perc in enumerate(df_missing_data['percentage']):
                 )
 st.pyplot()
 
-#--------------------------------------------------------------------------------------------
+possible_non_important_features.sort(key= lambda x: x[1], reverse=True)
+possible_non_important_features #['deferral_payments','deferred_income','director_fees','loan_advances', 'long_term_incentive', 'restricted_stock_deferred']
+
+for outlier, perc in possible_non_important_features:
+    uniq = len(df_poi[outlier].unique())
+    if perc > 75:
+        uniq = str(uniq)+" ✔"
+    st.write("-", outlier, "unique values: ", uniq)
+
+"""> 'load_advances', 'director_fees' and 'restricted_stock_deferred' are removed."""
+"""> Those feature have more than 75% of their data missing and only have less than 20 unique values."""
+"""> We also remove the email_address feature as it's a string value"""
+
+#One other data point can be eliminated (THE TRAVEL AGENCY IN THE PARK)
+#because it does not represent a person, and therefore can’t be a POI, leaving 144 data points.
+
+df_poi.drop(possible_non_important_features[0][0], inplace=True, axis=1)
+df_poi.drop(possible_non_important_features[1][0], inplace=True, axis=1)
+df_poi.drop(possible_non_important_features[2][0], inplace=True, axis=1)
+df_poi.drop("email_address", inplace=True, axis=1)
+""" ### Checking distribution"""
+number_people = len(df_poi.index)
+number_poi = len(df_poi[df_poi['poi']])
+number_features = len(df_poi.columns)
+st.write("Number of people: ",number_people)
+st.write("Number of POI: ", number_poi)
+st.write("Number of features: ",number_features)
+
+financial_features = ['salary', 'deferral_payments', 'total_payments', 'bonus',
+                      'deferred_income', 'total_stock_value', 'expenses',
+                      'exercised_stock_options', 'other', 'long_term_incentive', 'restricted_stock']
+#financial_features
+
+email_features = ['to_messages', 'from_poi_to_this_person', 'from_messages',
+                  'from_this_person_to_poi', 'poi', 'shared_receipt_with_poi']
+#email_features
+
+#----------------------------------------------------------------------------------------------------------
+
 """
 ### Identifying Outliers
 """
@@ -121,42 +160,6 @@ df_poi.drop('TOTAL', inplace = True)
 df_poi.plot(kind="scatter", x = 'bonus', y = 'deferral_payments',alpha=0.5, ax=ax1)
 ax1.set_title("After the TOTAL feature removal")
 st.pyplot(fig)
-
-possible_outliers.sort(key= lambda x: x[1], reverse=True)
-possible_outliers #['deferral_payments','deferred_income','director_fees','loan_advances', 'long_term_incentive', 'restricted_stock_deferred']
-
-for outlier, perc in possible_outliers:
-    uniq = len(df_poi[outlier].unique())
-    if perc > 75:
-        uniq = str(uniq)+" ✔"
-    st.write("-", outlier, "unique values: ", uniq)
-
-st.markdown("> load_advances, director_fees and restricted_stock_deferred are removed. Those feature have more than 75% of their data missing and only have less than 20 unique values.")
-
-#One other data point can be eliminated (THE TRAVEL AGENCY IN THE PARK)
-#because it does not represent a person, and therefore can’t be a POI, leaving 144 data points.
-
-df_poi.drop(possible_outliers[0][0], inplace=True, axis=1)
-df_poi.drop(possible_outliers[1][0], inplace=True, axis=1)
-df_poi.drop(possible_outliers[2][0], inplace=True, axis=1)
-""" ### Checking distribution"""
-number_people = len(df_poi.index)
-number_poi = len(df_poi[df_poi['poi']])
-number_features = len(df_poi.columns)
-st.write("Number of people: ",number_people)
-st.write("Number of POI: ", number_poi)
-st.write("Number of features: ",number_features)
-
-financial_features = ['salary', 'deferral_payments', 'total_payments', 'bonus',
-                      'deferred_income', 'total_stock_value', 'expenses',
-                      'exercised_stock_options', 'other', 'long_term_incentive', 'restricted_stock']
-#financial_features
-
-email_features = ['to_messages', 'email_address', 'from_poi_to_this_person', 'from_messages',
-                  'from_this_person_to_poi', 'poi', 'shared_receipt_with_poi']
-#email_features
-
-
 
 
 
@@ -215,7 +218,7 @@ financial_features = ['salary', 'total_payments','deferred_income', 'bonus','tot
                       'other', 'long_term_incentive', 'restricted_stock']
 
 email_features = ['to_messages', 'from_poi_to_this_person', 'from_messages',
-                  'from_this_person_to_poi', 'shared_receipt_with_poi'] # we remove ("email_address") as it's a string
+                  'from_this_person_to_poi', 'shared_receipt_with_poi']
 
 features_list = ['poi'] + financial_features + email_features
 
