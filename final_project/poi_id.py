@@ -23,16 +23,21 @@ features_list = ['poi','salary'] # You will need to use more features
 with open("final_project_dataset_unix.pkl", "rb") as data_file:
     data_dict = pickle.load(data_file)
 
-
-
 df = pd.DataFrame(data_dict)
 df_poi = df.transpose()
 
-number_people = len(df_poi.index)
-number_poi = len(df_poi[df_poi['poi']])
-st.write("Number of people: ",number_people)
-st.write("Number of POI: ", number_poi)
-st.write("Number of features: ",len(df_poi.columns))
+number_people = number_poi = number_features = 0
+
+def checkingDistribution():
+    global number_people , number_poi , number_features
+    number_people = len(df_poi.index)
+    number_poi = len(df_poi[df_poi['poi']])
+    number_features = len(df_poi.columns)
+    st.write("Number of people: ", number_people)
+    st.write("Number of POI: ", number_poi)
+    st.write("Number of features: ", number_features)
+
+checkingDistribution()
 
 financial_features = ['salary', 'deferral_payments', 'total_payments', 'loan_advances', 'bonus',
 'restricted_stock_deferred', 'deferred_income', 'total_stock_value', 'expenses',
@@ -44,8 +49,7 @@ email_features = ['to_messages', 'email_address', 'from_poi_to_this_person', 'fr
 'from_this_person_to_poi', 'shared_receipt_with_poi']
 #email_features
 
-
-st.write(df_poi)
+df_poi
 
 #--------------------------------------------------------------------------------------------
 """
@@ -53,7 +57,7 @@ st.write(df_poi)
 """
 #--------------------------------------------------------------------------------------------
 
-"""### Identify and handle missing values")"""
+"""### 2.1 Identify and handle missing values")"""
 
 import numpy as np
 df_poi.replace("NaN",np.nan, inplace = True) # to replace everything
@@ -121,14 +125,10 @@ df_poi.drop(possible_non_important_features[0][0], inplace=True, axis=1)
 df_poi.drop(possible_non_important_features[1][0], inplace=True, axis=1)
 df_poi.drop(possible_non_important_features[2][0], inplace=True, axis=1)
 df_poi.drop("email_address", inplace=True, axis=1)
-""" ### Checking distribution"""
-number_people = len(df_poi.index)
-number_poi = len(df_poi[df_poi['poi']])
-number_features = len(df_poi.columns)
-st.write("Number of people: ",number_people)
-st.write("Number of POI: ", number_poi)
-st.write("Number of features: ",number_features)
 
+
+""" ### Checking distribution"""
+checkingDistribution()
 financial_features = ['salary', 'deferral_payments', 'total_payments', 'bonus',
                       'deferred_income', 'total_stock_value', 'expenses',
                       'exercised_stock_options', 'other', 'long_term_incentive', 'restricted_stock']
@@ -141,7 +141,7 @@ email_features = ['to_messages', 'from_poi_to_this_person', 'from_messages',
 #----------------------------------------------------------------------------------------------------------
 
 """
-### Identifying Outliers
+### 2.2 Identifying Outliers
 """
 st.write("taking into account the first two of the features")
 fig = plt.figure(figsize=(10,7)) # create figure
@@ -164,6 +164,7 @@ st.pyplot(fig)
 
 
 #--------------------------------------------------------------------------------------------
+"""# Exploratory Data Analysis"""
 """
 ## Task 3: Feature Handling
 """
@@ -195,31 +196,24 @@ def plot_correlation(type):
 
 plot_correlation("pearson")
 """
-Deferral_payments and expenses are not highly correlated among the other financial features.
+'Deferral_payments' and 'expenses' are not highly correlated among the other financial features.
 """
 """ 3.1.2 Verifying P-value correlation """
 plot_correlation("p-value")
 """
-Deferral_payments and expenses have very low confident that the correlation between the financial variables is significant.
+'Deferral_payments' and 'expenses' have very low confident that the correlation between the financial variables is significant.
 """
 
 df_poi.drop("deferral_payments", inplace=True, axis=1)
 df_poi.drop("expenses", inplace=True, axis=1)
 
 """ ### Checking new distribution"""
-number_people = len(df_poi.index)
-number_poi = len(df_poi[df_poi['poi']])
-number_features = len(df_poi.columns)
-st.write("Number of people: ",number_people)
-st.write("Number of POI: ", number_poi)
-st.write("Number of features: ",number_features)
+checkingDistribution()
 
 financial_features = ['salary', 'total_payments','deferred_income', 'bonus','total_stock_value', 'exercised_stock_options',
                       'other', 'long_term_incentive', 'restricted_stock']
-
 email_features = ['to_messages', 'from_poi_to_this_person', 'from_messages',
                   'from_this_person_to_poi', 'shared_receipt_with_poi']
-
 features_list = ['poi'] + financial_features + email_features
 
 
@@ -265,9 +259,21 @@ createNewFeatures()
 #----------------------------------------------------------------------------------------------------------
 """
 ### 3.3 Feature Scaling
-
+Some feature values have a large range of values. 
+ - The MinMaxScaler adjusts the feature values and scales them so that any patterns can be identified easier.
+ - StandardScaler adjust by removing the mean and scaling to unit variance.
 """
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+SCALER = [None, StandardScaler(), MinMaxScaler()]
 
+# #(df - df.min()) / (df.max() - df.min())
+# scaler = MinMaxScaler()
+# df_poi[df_poi.columns] = scaler.fit_transform(df_poi)
+# df_poi
+#
+# """Replace Nan by zeros"""
+# df_poi.replace(np.nan, 0., inplace = True) # to replace everything
+# df_poi
 
 
 #----------------------------------------------------------------------------------------------------------
@@ -279,28 +285,57 @@ How many features?
  - SelectPercentile
  - SelectKBest
 """
+SELECTOR_K = [10, 13, 15, 18, 'all']
+#----------------------------------------------------------------------------------------------------------
+"""
+### 3.5 Feature Transformer
+PCA - a linear dimensionality reduction technique that can be utilized for extracting information 
+from a high-dimensional space by projecting it into a lower-dimensional sub-space
+"""
+
+REDUCER_N_COMPONENTS = [2, 4, 6, 8, 10]
 
 
 
 #----------------------------------------------------------------------------------------------------------
+"""# Model Training"""
+### Load the dictionary containing the dataset
+filled_df = df_poi.fillna(value='NaN') # featureFormat expects 'NaN' strings
+data_dict = filled_df.to_dict(orient='index')
 
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
+#my_dataset
+#features_list
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
-
+x_features = np.array(features)
+y_labels = np.array(labels)
+#----------------------------------------------------------------------------------------------------------
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
 ### Note that if you want to do PCA or other multi-stage operations,
-### you'll need to use Pipelines. For more info:
-### http://scikit-learn.org/stable/modules/pipeline.html
+### you'll need to use Pipelines. For more info: http://scikit-learn.org/stable/modules/pipeline.html
 
 # Provided to give you a starting point. Try a variety of classifiers.
 from sklearn.naive_bayes import GaussianNB
 clf = GaussianNB()
 
+### Cross-validation
+sss = StratifiedShuffleSplit(n_splits=10, test_size=0.2, random_state=42)
+
+
+
+
+
+
+
+
+
+
+#----------------------------------------------------------------------------------------------------------
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
