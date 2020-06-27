@@ -32,6 +32,27 @@ def evaluate_model(grid, X, y, cv):
     print("Mean f1: {}".format(np.mean(cv_f1)))
 
 
+def classifier_gaussian_nb(feature_scaler, feature_selector, feature_transformer,
+                           scaler, selector_k, reducer_n_components, sss):
+    from sklearn.naive_bayes import GaussianNB
+    clf = GaussianNB()
+
+    pipe = Pipeline([
+        ('scaler', feature_scaler),
+        ('selector', feature_selector),
+        ('reducer', feature_transformer),
+        ('clf', clf)
+    ])
+
+    param_grid = {
+        'scaler': scaler,
+        'selector__k': selector_k,
+        'reducer__n_components': reducer_n_components
+    }
+
+    gnb_grid = GridSearchCV(pipe, param_grid, scoring='f1', cv=sss)
+    return gnb_grid
+
 
 
 

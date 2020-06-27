@@ -328,6 +328,12 @@ sss = StratifiedShuffleSplit(n_splits=10, test_size=0.2, random_state=42)
 #Try a variety of classifiers.
 from classifiers import evaluate_model, classifier_gaussian_nb
 """Gaussian Naive Bayes"""
+clf = classifier_gaussian_nb(StandardScaler(), SelectKBest(), PCA(random_state=42),
+                       SCALER_1, SELECTOR_K, REDUCER_N_COMPONENTS,sss)
+
+evaluate_model(clf, x_features, y_labels, sss)
+
+test_classifier(clf.best_estimator_, my_dataset, features_list)
 
 
 #----------------------------------------------------------------------------------------------------------
