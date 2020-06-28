@@ -75,16 +75,16 @@ def test_classifier(clf, dataset, feature_list, folds=1000):
         st.write( "Got a divide by zero when trying out:", clf)
         st.write( "Precision or recall may be undefined due to a lack of true positive predicitons.")
 
-CLF_PICKLE_FILENAME = "my_classifier.pkl"
-DATASET_PICKLE_FILENAME = "my_dataset.pkl"
-FEATURE_LIST_FILENAME = "my_feature_list.pkl"
+CLF_PICKLE_FILENAME = "my_classifier"
+DATASET_PICKLE_FILENAME = "my_dataset"
+FEATURE_LIST_FILENAME = "my_feature_list"
 
 def dump_classifier_and_data(clf, dataset, feature_list, name):
-    with open(CLF_PICKLE_FILENAME+name, "wb") as clf_outfile:
+    with open(CLF_PICKLE_FILENAME+name+'.pkl', "wb") as clf_outfile:
         pickle.dump(clf, clf_outfile)
-    with open(DATASET_PICKLE_FILENAME+name, "wb") as dataset_outfile:
+    with open(DATASET_PICKLE_FILENAME+name+'.pkl', "wb") as dataset_outfile:
         pickle.dump(dataset, dataset_outfile)
-    with open(FEATURE_LIST_FILENAME+name, "wb") as featurelist_outfile:
+    with open(FEATURE_LIST_FILENAME+name+'.pkl', "wb") as featurelist_outfile:
         pickle.dump(feature_list, featurelist_outfile)
 
 def load_classifier_and_data():
