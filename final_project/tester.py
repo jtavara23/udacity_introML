@@ -24,6 +24,7 @@ RESULTS_FORMAT_STRING = "\tTotal predictions: {:4d}\nTrue positives: {:4d}\nFals
 \nFalse negatives: {:4d}\nTrue negatives: {:4d}"
 
 def test_classifier(clf, dataset, feature_list, folds=1000):
+    st.write("Getting test metrics from udacity tester function")
     data = featureFormat(dataset, feature_list, sort_keys = True)
     labels, features = targetFeatureSplit(data)
     cv = StratifiedShuffleSplit(n_splits=folds, random_state=42)
@@ -56,9 +57,9 @@ def test_classifier(clf, dataset, feature_list, folds=1000):
             elif prediction == 1 and truth == 1:
                 true_positives += 1
             else:
-                st.write("Warning: Found a predicted label not == 0 or 1.")
-                st.write("All predictions should take value 0 or 1.")
-                st.write( "Evaluating performance for processed predictions:")
+                print("Warning: Found a predicted label not == 0 or 1.")
+                print("All predictions should take value 0 or 1.")
+                print( "Evaluating performance for processed predictions:")
                 break
     try:
         total_predictions = true_negatives + false_negatives + false_positives + true_positives
@@ -67,13 +68,14 @@ def test_classifier(clf, dataset, feature_list, folds=1000):
         recall = 1.0*true_positives/(true_positives+false_negatives)
         f1 = 2.0 * true_positives/(2*true_positives + false_positives+false_negatives)
         f2 = (1+2.0*2.0) * precision*recall/(4*precision + recall)
-        st.write (clf)
-        st.write (PERF_FORMAT_STRING.format(accuracy, precision, recall, f1, f2, display_precision = 5))
-        st.write (RESULTS_FORMAT_STRING.format(total_predictions, true_positives, false_positives, false_negatives, true_negatives))
-        st.write ("")
+        st.write(clf)
+        print (PERF_FORMAT_STRING.format(accuracy, precision, recall, f1, f2, display_precision = 5))
+        print (RESULTS_FORMAT_STRING.format(total_predictions, true_positives, false_positives, false_negatives, true_negatives))
+        print ("___________________________________________________________________")
+        return tuple((accuracy, precision, recall, f1, round(f2,2)))
     except:
-        st.write( "Got a divide by zero when trying out:", clf)
-        st.write( "Precision or recall may be undefined due to a lack of true positive predicitons.")
+        print( "Got a divide by zero when trying out:", clf)
+        print( "Precision or recall may be undefined due to a lack of true positive predicitons.")
 
 CLF_PICKLE_FILENAME = "my_classifier"
 DATASET_PICKLE_FILENAME = "my_dataset"

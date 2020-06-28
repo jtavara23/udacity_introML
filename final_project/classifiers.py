@@ -5,7 +5,9 @@ import numpy as np
 import streamlit as st
 
 
-def evaluate_model(grid, X, y, cv=None, X_test=None, y_test=None):
+def evaluate_model(grid, X, y, cv=None, x_test=None, y_test=None):
+    print("Own evaluation function: ")
+    st.write(" Getting test metrics from own model evaluation")
     cv_accuracy = []
     cv_precision = []
     cv_recall = []
@@ -17,27 +19,33 @@ def evaluate_model(grid, X, y, cv=None, X_test=None, y_test=None):
     grid.fit(X, y)
     st.write("Best parameters: ", grid.best_params_)
 
-    X_train = X
+    x_train = X
     y_train = y
 
     if cv is not None:
         for train_index, test_index in cv.split(X, y):
-            X_train, X_test = X[train_index], X[test_index]
+            x_train, x_test = X[train_index], X[test_index]
             y_train, y_test = y[train_index], y[test_index]
 
-    grid.best_estimator_.fit(X_train, y_train)
-    prediction = grid.best_estimator_.predict(X_test)
+    grid.best_estimator_.fit(x_train, y_train)
+    prediction = grid.best_estimator_.predict(x_test)
 
     cv_accuracy.append(accuracy_score(y_test, prediction))
     cv_precision.append(precision_score(y_test, prediction))
     cv_recall.append(recall_score(y_test, prediction))
     cv_f1.append(f1_score(y_test, prediction))
 
-    st.write("Mean Accuracy: {}".format(np.mean(cv_accuracy)))
-    st.write("Mean Precision: {}".format(np.mean(cv_precision)))
-    st.write("Mean Recall: {}".format(np.mean(cv_recall)))
-    st.write("Mean f1: {}".format(np.mean(cv_f1)))
+    acc = np.mean(cv_accuracy)
+    precision = np.mean(cv_precision)
+    recall = np.mean(cv_recall)
+    f1 = np.mean(cv_f1)
 
+    print("Mean Accuracy: {}".format(acc))
+    print("Mean Precision: {}".format(precision))
+    print("Mean Recall: {}".format(recall))
+    print("Mean f1: {}".format(f1))
+    print("------------------------------------------------")
+    return tuple((acc, precision, recall, f1, "-"))
 
 def classifier_gaussian_nb(feature_scaler, feature_selector, feature_transformer,
                            scaler, selector_k, reducer_n_components, sss=None):

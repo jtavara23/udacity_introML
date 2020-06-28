@@ -321,44 +321,41 @@ y_labels = np.array(labels)
 ### you'll need to use Pipelines. For more info: http://scikit-learn.org/stable/modules/pipeline.html
 
 from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import train_test_split
 # Cross-validation
-sss = StratifiedShuffleSplit(n_splits=10, test_size=0.25, random_state=42)
+sss = StratifiedShuffleSplit(n_splits=10, test_size=0.2, random_state=42)
 
-evaluation_metrics
+evaluation_metrics = []
 
 #Try a variety of classifiers.
 #----------------------------------------------------------------------------------------------------------
 from classifiers import evaluate_model, classifier_gaussian_nb
 
 """ ## 4.1 Gaussian Naive Bayes"""
-
+name = "gaussian_stratified"
 """ ### 4.1.1 Stratified Shuffle Split"""
 clf_stratified = classifier_gaussian_nb(StandardScaler(), SelectKBest(), PCA(random_state=42),
                        SCALER, SELECTOR_K, REDUCER_N_COMPONENTS, sss)
-""" Get test metrics from model own evaluation"""
-evaluate_model(clf_stratified, x_features, y_labels, sss)
-st.markdown("_________________")
-""" Get test metrics from tester function"""
-test_classifier(clf_stratified.best_estimator_, my_dataset, features_list)
-dump_classifier_and_data(clf_stratified, my_dataset, features_list, "gaussian_Stratified")
+
+evaluation_metrics.append((name,) + evaluate_model(clf_stratified, x_features, y_labels, cv=sss))
+evaluation_metrics.append((name,) + test_classifier(clf_stratified.best_estimator_, my_dataset, features_list))
+dump_classifier_and_data(clf_stratified, my_dataset, features_list, name)
 
 
 st.markdown("_________________")
 
 
 """ ### 4.1.2 Non Stratified Split"""
-from sklearn.model_selection import train_test_split
+name = "gaussian_non_Stratified"
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.25, random_state=42)
 
 clf_non_stratified = classifier_gaussian_nb(StandardScaler(), SelectKBest(), PCA(random_state=42),
                        SCALER, SELECTOR_K, REDUCER_N_COMPONENTS)
-""" Get test metrics from model own evaluation"""
-evaluate_model(clf_non_stratified, features_train, labels_train, X_test=features_test, y_test=labels_test )
-st.markdown("_________________")
-""" Get test metrics from tester function"""
-test_classifier(clf_non_stratified.best_estimator_, my_dataset, features_list)
-dump_classifier_and_data(clf_stratified, my_dataset, features_list, "gaussian_non_Stratified")
+
+evaluation_metrics.append((name,) + evaluate_model(clf_non_stratified, features_train, labels_train, x_test=features_test, y_test=labels_test ))
+evaluation_metrics.append((name,) + test_classifier(clf_non_stratified.best_estimator_, my_dataset, features_list))
+dump_classifier_and_data(clf_non_stratified, my_dataset, features_list, name)
 
 #----------------------------------------------------------------------------------------------------------
 
@@ -366,11 +363,9 @@ dump_classifier_and_data(clf_stratified, my_dataset, features_list, "gaussian_no
 
 
 
+df_evaluation_metrics = pd.DataFrame.from_records(evaluation_metrics, columns=["clf_name", "accuracy", "precision", "recall", "f1", "f2"])
+df_evaluation_metrics.set_index("clf_name", inplace=True)
+df_evaluation_metrics
 
-
-"""
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-
-
-"""
+#from sklearn.svm import SVC
+#from sklearn.tree import DecisionTreeClassifier
