@@ -3,6 +3,29 @@ from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import numpy as np
 import streamlit as st
+import matplotlib.pyplot as plt
+
+
+def select_best_features(clf_grid, features_list):
+    k_best = clf_grid.best_estimator_.named_steps['selector']
+
+    features_array = np.array(features_list)
+    features_array = np.delete(features_array, 0)
+    indices = np.argsort(k_best.scores_)[::-1]
+    k_features = k_best.get_support().sum()
+
+    features = []
+    for i in range(k_features):
+        features.append(features_array[indices[i]])
+
+    features = features[::-1]
+    scores = k_best.scores_[indices[range(k_features)]][::-1]
+
+    plt.figure(figsize=(15, 9))
+    plt.barh(range(k_features), scores)
+    plt.yticks(np.arange(0.4, k_features), features)
+    plt.title('SelectKBest Feature Importance\'s')
+    st.pyplot()
 
 
 def evaluate_model(grid, X, y, cv=None, x_test=None, y_test=None):
@@ -46,6 +69,7 @@ def evaluate_model(grid, X, y, cv=None, x_test=None, y_test=None):
     print("Mean f1: {}".format(f1))
     print("------------------------------------------------")
     return tuple((acc, precision, recall, f1, "-"))
+
 
 def classifier_gaussian_nb(feature_scaler, feature_selector, feature_transformer,
                            scaler, selector_k, reducer_n_components, sss=None):
