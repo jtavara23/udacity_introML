@@ -2,13 +2,15 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import numpy as np
+import streamlit as st
+
 
 def evaluate_model(grid, X, y, cv):
     nested_score = cross_val_score(grid, X=X, y=y, cv=cv, n_jobs=-1)
-    print("Nested f1 score: {}".format(nested_score.mean()))
+    st.write("Nested f1 score: {}".format(nested_score.mean()))
 
     grid.fit(X, y)
-    print("Best parameters: {}".format(grid.best_params_))
+    st.write("Best parameters: ",grid.best_params_)
 
     cv_accuracy = []
     cv_precision = []
@@ -26,10 +28,10 @@ def evaluate_model(grid, X, y, cv):
         cv_recall.append(recall_score(y_test, prediction))
         cv_f1.append(f1_score(y_test, prediction))
 
-    print("Mean Accuracy: {}".format(np.mean(cv_accuracy)))
-    print("Mean Precision: {}".format(np.mean(cv_precision)))
-    print("Mean Recall: {}".format(np.mean(cv_recall)))
-    print("Mean f1: {}".format(np.mean(cv_f1)))
+    st.write("Mean Accuracy: {}".format(np.mean(cv_accuracy)))
+    st.write("Mean Precision: {}".format(np.mean(cv_precision)))
+    st.write("Mean Recall: {}".format(np.mean(cv_recall)))
+    st.write("Mean f1: {}".format(np.mean(cv_f1)))
 
 
 def classifier_gaussian_nb(feature_scaler, feature_selector, feature_transformer,

@@ -264,8 +264,7 @@ Some feature values have a large range of values.
  - StandardScaler adjust by removing the mean and scaling to unit variance.
 """
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-SCALER_1 = [None, StandardScaler()]
-SCALER_2 = [None, MinMaxScaler()]
+SCALER = [None, StandardScaler(),MinMaxScaler()]
 
 # #(df - df.min()) / (df.max() - df.min())
 # scaler = MinMaxScaler()
@@ -327,34 +326,31 @@ sss = StratifiedShuffleSplit(n_splits=10, test_size=0.2, random_state=42)
 
 #Try a variety of classifiers.
 from classifiers import evaluate_model, classifier_gaussian_nb
-"""Gaussian Naive Bayes"""
+
+""" ## Gaussian Naive Bayes"""
+""" ### Stratified Shuffle Split"""
 clf = classifier_gaussian_nb(StandardScaler(), SelectKBest(), PCA(random_state=42),
-                       SCALER_1, SELECTOR_K, REDUCER_N_COMPONENTS,sss)
-
+                       SCALER, SELECTOR_K, REDUCER_N_COMPONENTS, sss)
+""" Get test metrics from model own evaluation"""
 evaluate_model(clf, x_features, y_labels, sss)
-
+"""------------------------------------------------------------------"""
+""" Get test metrics from tester function"""
 test_classifier(clf.best_estimator_, my_dataset, features_list)
 
 
 #----------------------------------------------------------------------------------------------------------
-### Task 5: Tune your classifier to achieve better than .3 precision and recall 
-### using our testing script. Check the tester.py script in the final project
-### folder for details on the evaluation method, especially the test_classifier
-### function. Because of the small size of the dataset, the script uses
-### stratified shuffle split cross validation. For more info: 
-### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
-# Example starting point. Try investigating other evaluation techniques!
+""" ### Non Stratified Split"""
 from sklearn.model_selection import train_test_split
 features_train, features_test, labels_train, labels_test = \
-    train_test_split(features, labels, test_size=0.3, random_state=42)
+    train_test_split(features, labels, test_size=0.2, random_state=42)
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
 ### that the version of poi_id.py that you submit can be run on its own and
 ### generates the necessary .pkl files for validating your results.
 
-dump_classifier_and_data(clf, my_dataset, features_list)
+dump_classifier_and_data(clf, my_dataset, features_list, "gaussian_Stratified")
 st.write("Finishing dumping files.")
 
 
