@@ -16,6 +16,7 @@ import streamlit as st
 from sklearn.model_selection import StratifiedShuffleSplit
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
+from classifiers import select_best_features, evaluate_model
 
 PERF_FORMAT_STRING = "\
 \tAccuracy: {:>0.{display_precision}f}\nPrecision: {:>0.{display_precision}f}\n\
@@ -77,9 +78,29 @@ def test_classifier(clf, dataset, feature_list, folds=1000):
         print( "Got a divide by zero when trying out:", clf)
         print( "Precision or recall may be undefined due to a lack of true positive predicitons.")
 
-CLF_PICKLE_FILENAME = "my_classifier"
-DATASET_PICKLE_FILENAME = "my_dataset"
-FEATURE_LIST_FILENAME = "my_feature_list"
+
+def testing_on_stratified_data(clf_stratified, name, evaluation_metrics, x_features, y_labels,
+                               my_dataset, features_list, sss, dump=False):
+
+    evaluation_metrics.append((name,) + evaluate_model(clf_stratified, x_features, y_labels, cv=sss))
+    evaluation_metrics.append((name,) + test_classifier(clf_stratified.best_estimator_, my_dataset, features_list))
+    feautures = select_best_features(clf_stratified, features_list)
+    if dump:
+        dump_classifier_and_data(clf_stratified, my_dataset, feautures, name)
+
+def testing_on_non_stratified_data(clf_non_stratified, name, evaluation_metrics, my_dataset, features_list, dump=False):
+    from poi_id import features_train, labels_train, features_test, labels_test
+    evaluation_metrics.append((name,) + evaluate_model(clf_non_stratified, features_train, labels_train,
+                                                       x_test=features_test, y_test=labels_test))
+    evaluation_metrics.append((name,) + test_classifier(clf_non_stratified.best_estimator_, my_dataset, features_list))
+    feautures = select_best_features(clf_non_stratified, features_list)
+    if dump:
+        dump_classifier_and_data(clf_non_stratified, my_dataset, feautures, name)
+
+
+CLF_PICKLE_FILENAME = "my_classifier_"
+DATASET_PICKLE_FILENAME = "my_dataset_"
+FEATURE_LIST_FILENAME = "my_feature_list_"
 
 def dump_classifier_and_data(clf, dataset, feature_list, name):
     with open(CLF_PICKLE_FILENAME+name+'.pkl', "wb") as clf_outfile:

@@ -26,6 +26,7 @@ def select_best_features(clf_grid, features_list):
     plt.yticks(np.arange(0.4, k_features), features)
     plt.title('SelectKBest Feature Importance\'s')
     st.pyplot()
+    return features
 
 
 def evaluate_model(grid, X, y, cv=None, x_test=None, y_test=None):
@@ -95,6 +96,38 @@ def classifier_gaussian_nb(feature_scaler, feature_selector, feature_transformer
 
     return gnb_grid
 
+
+def classifier_svc(feature_scaler, feature_selector, feature_transformer,
+                   scaler,selector_k, reducer_n_components, sss=None):
+
+    from sklearn.svm import SVC
+    C_PARAM = np.logspace(-2, 3, 6)
+    GAMMA_PARAM = np.logspace(-4, 1, 6)
+    CLASS_WEIGHT = ['balanced', None]
+    KERNEL = ['rbf', 'sigmoid']
+
+    pipe = Pipeline([
+        ('scaler', feature_scaler),
+        ('selector', feature_selector),
+        ('reducer', feature_transformer),
+        ('classifier', SVC(verbose=True))
+    ])
+
+    param_grid = {
+        'scaler': scaler,
+        'selector__k': selector_k,
+        'reducer__n_components': reducer_n_components,
+        'classifier__C': C_PARAM,
+        'classifier__gamma': GAMMA_PARAM,
+        'classifier__class_weight': CLASS_WEIGHT,
+        'classifier__kernel': KERNEL
+    }
+    if sss is not None:
+        svc_grid = GridSearchCV(pipe, param_grid, scoring='f1', cv=sss)
+    else:
+        svc_grid = GridSearchCV(pipe, param_grid, scoring='f1')
+
+    return svc_grid
 
 
 
