@@ -263,7 +263,8 @@ Some feature values have a large range of values.
  - StandardScaler adjust by removing the mean and scaling to unit variance.
 """
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-SCALER = [None, StandardScaler()]
+# SCALER = [None, StandardScaler(),MinMaxScaler()]
+SCALER = [MinMaxScaler()]
 
 # #(df - df.min()) / (df.max() - df.min())
 # scaler = MinMaxScaler()
@@ -285,7 +286,8 @@ How many features?
  - SelectKBest
 """
 from sklearn.feature_selection import SelectKBest, SelectPercentile
-SELECTOR_K = [8, 10, 'all']
+#SELECTOR_K = [8, 9, 10, 11, 12, 'all']
+SELECTOR_K = [ 10, 11]
 #----------------------------------------------------------------------------------------------------------
 """
 ### 3.5 Feature Transformer
@@ -293,7 +295,8 @@ PCA - a linear dimensionality reduction technique that can be utilized for extra
 from a high-dimensional space by projecting it into a lower-dimensional sub-space
 """
 from sklearn.decomposition import PCA
-REDUCER_N_COMPONENTS = [6]
+# REDUCER_N_COMPONENTS = [2, 4, 6, 8]
+REDUCER_N_COMPONENTS = [6, 8]
 
 
 
@@ -332,43 +335,60 @@ evaluation_metrics = []
 
 #Try a variety of classifiers.
 #----------------------------------------------------------------------------------------------------------
-from classifiers import classifier_gaussian_nb, classifier_svc
+from classifiers import classifier_gaussian_nb, classifier_svc, classifier_decision_tree
 from tester import testing_on_stratified_data, testing_on_non_stratified_data
 
-""" ## 4.1 Gaussian Naive Bayes"""
-name = "gaussian_stratified"
-""" ### 4.1.1 Stratified Shuffle Split"""
-clf_stratified = classifier_gaussian_nb(StandardScaler(), SelectKBest(), PCA(random_state=42), SCALER, SELECTOR_K, REDUCER_N_COMPONENTS, sss)
-testing_on_stratified_data(clf_stratified, name, evaluation_metrics, x_features, y_labels, my_dataset, features_list, sss)
+# """ ## 4.1 Gaussian Naive Bayes"""
+# name = "gaussian_stratified"
+# """ ### 4.1.1 Stratified Shuffle Split"""
+# clf_stratified = classifier_gaussian_nb(StandardScaler(), SelectKBest(), PCA(random_state=42), SCALER, SELECTOR_K, REDUCER_N_COMPONENTS, sss)
+# testing_on_stratified_data(clf_stratified, name, evaluation_metrics, x_features, y_labels, my_dataset, features_list, sss)
+#
+# st.markdown("_________________")
+#
+# """ ### 4.1.2 Non Stratified Split"""
+# name = "gaussian_non_Stratified"
+# clf_non_stratified = classifier_gaussian_nb(StandardScaler(), SelectKBest(), PCA(random_state=42), SCALER, SELECTOR_K, REDUCER_N_COMPONENTS)
+# testing_on_non_stratified_data(clf_non_stratified, name, evaluation_metrics, my_dataset, features_list)
+
+#----------------------------------------------------------------------------------------------------------
+""" ## 4.2 SVM-C """
+name = "svc_stratified"
+""" ### 4.2.1 Stratified Shuffle Split"""
+clf_stratified = classifier_svc(StandardScaler(), SelectKBest(), PCA(random_state=42),
+                       SCALER, SELECTOR_K, REDUCER_N_COMPONENTS, sss)
+
+testing_on_stratified_data(clf_stratified, name, evaluation_metrics, x_features, y_labels, my_dataset, features_list,sss, True)
+st.markdown("_________________")
+
+""" ### 4.2.2 Non Stratified Split"""
+name = "svc_non_stratified"
+clf_non_stratified = classifier_svc(StandardScaler(), SelectKBest(), PCA(random_state=42),
+                       SCALER, SELECTOR_K, REDUCER_N_COMPONENTS)
+
+testing_on_non_stratified_data(clf_non_stratified, name, evaluation_metrics, my_dataset, features_list, True)
+
+#----------------------------------------------------------------------------------------------------------
+""" ## 4.2 Decision Trees"""
+name = "decisionTree_stratified"
+""" ### 4.2.1 Stratified Shuffle Split"""
+clf_stratified = classifier_decision_tree(StandardScaler(), SelectKBest(), PCA(random_state=42), SCALER, SELECTOR_K, REDUCER_N_COMPONENTS, sss)
+testing_on_stratified_data(clf_stratified, name, evaluation_metrics, x_features, y_labels, my_dataset, features_list, sss, True)
 
 st.markdown("_________________")
 
-""" ### 4.1.2 Non Stratified Split"""
-name = "gaussian_non_Stratified"
-clf_non_stratified = classifier_gaussian_nb(StandardScaler(), SelectKBest(), PCA(random_state=42), SCALER, SELECTOR_K, REDUCER_N_COMPONENTS)
-testing_on_non_stratified_data(clf_non_stratified, name, evaluation_metrics, my_dataset, features_list)
+""" ### 4.2.2 Non Stratified Split"""
+name = "decisionTree_non_Stratified"
+clf_non_stratified = classifier_decision_tree(StandardScaler(), SelectKBest(), PCA(random_state=42), SCALER, SELECTOR_K, REDUCER_N_COMPONENTS)
+testing_on_non_stratified_data(clf_non_stratified, name, evaluation_metrics, my_dataset, features_list, True)
 
-#----------------------------------------------------------------------------------------------------------
-# """ ## 4.2 SVM-C """
-# name = "svc_stratified"
-# """ ### 4.2.1 Stratified Shuffle Split"""
-# clf_stratified = classifier_svc(StandardScaler(), SelectKBest(), PCA(random_state=42),
-#                        SCALER, SELECTOR_K, REDUCER_N_COMPONENTS, sss)
-#
-# testing_on_stratified_data(clf_stratified, name, evaluation_metrics, x_features, y_labels, my_dataset, features_list,sss)
-# st.markdown("_________________")
-#
-# """ ### 4.2.2 Non Stratified Split"""
-# name = "svc_non_stratified"
-# clf_non_stratified = classifier_svc(StandardScaler(), SelectKBest(), PCA(random_state=42),
-#                        SCALER, SELECTOR_K, REDUCER_N_COMPONENTS)
-#
-#testing_on_non_stratified_data(clf_non_stratified, name, evaluation_metrics, my_dataset, features_list)
+
+
+
+
 #----------------------------------------------------------------------------------------------------------
 
 
 df_evaluation_metrics = pd.DataFrame.from_records(evaluation_metrics, columns=["clf_name", "accuracy", "precision", "recall", "f1", "f2"])
 df_evaluation_metrics.set_index("clf_name", inplace=True)
 df_evaluation_metrics
-#----------------------------------------------------------------------------------------------------------
-#from sklearn.tree import DecisionTreeClassifier

@@ -101,10 +101,14 @@ def classifier_svc(feature_scaler, feature_selector, feature_transformer,
                    scaler,selector_k, reducer_n_components, sss=None):
 
     from sklearn.svm import SVC
-    C_PARAM = np.logspace(-2, 3, 6)
-    GAMMA_PARAM = np.logspace(-4, 1, 6)
-    CLASS_WEIGHT = ['balanced', None]
-    KERNEL = ['rbf', 'sigmoid']
+    C_PARAM = np.logspace(-2, 3, 6) # array([1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02, 1.e+03])
+    #C_PARAM = 1.e+02
+    GAMMA_PARAM = np.logspace(-4, 1, 6) # array([1.e-04, 1.e-03, 1.e-02, 1.e-01, 1.e+00, 1.e+01])
+    #GAMMA_PARAM = 1.e-02
+    # CLASS_WEIGHT = ['balanced', None]
+    CLASS_WEIGHT = ['balanced']
+    # KERNEL = ['rbf', 'sigmoid']
+    KERNEL = ['sigmoid']
 
     pipe = Pipeline([
         ('scaler', feature_scaler),
@@ -130,4 +134,34 @@ def classifier_svc(feature_scaler, feature_selector, feature_transformer,
     return svc_grid
 
 
+def classifier_decision_tree(feature_scaler, feature_selector, feature_transformer,
+                   scaler,selector_k, reducer_n_components, sss=None):
 
+    from sklearn.tree import DecisionTreeClassifier
+    CRITERION = ['gini', 'entropy']
+    SPLITTER = ['best', 'random']
+    MIN_SAMPLES_SPLIT = [2, 4, 6, 8]
+    CLASS_WEIGHT = ['balanced', None]
+
+    pipe = Pipeline([
+        ('scaler', feature_scaler),
+        ('selector', feature_selector),
+        ('reducer', feature_transformer),
+        ('classifier', DecisionTreeClassifier())
+    ])
+
+    param_grid = {
+        'scaler': scaler,
+        'selector__k': selector_k,
+        'reducer__n_components': reducer_n_components,
+        'classifier__criterion': CRITERION,
+        'classifier__splitter': SPLITTER,
+        'classifier__min_samples_split': MIN_SAMPLES_SPLIT,
+        'classifier__class_weight': CLASS_WEIGHT
+    }
+    if sss is not None:
+        svc_grid = GridSearchCV(pipe, param_grid, scoring='f1', cv=sss)
+    else:
+        svc_grid = GridSearchCV(pipe, param_grid, scoring='f1')
+
+    return svc_grid
